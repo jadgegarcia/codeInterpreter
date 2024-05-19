@@ -1,33 +1,32 @@
 package lexer;
+
+
+
 public class Token {
-    public enum Type {
-        IDENTIFIER,
-        NEWLINE,
-        ASSIGNMENT,
-        CONCAT,
-        STRING,
-        CHAR,
-        KEYWORD,
-        NUMBER,
-        FLOAT,
-        BOOL,
-        OPERATOR,
-        DELIMITER,
-        INVALID,
-        EOF // End of file
-    }
 
-    private Type type;
+    private TokenType type;
     private String value;
+    private double val;
 
-    public Token(Type type, String value) {
+    public Token(TokenType type, String value) {
         this.type = type;
         this.value = value;
     }
 
-    public void setType(Type type) {
+    public Token(TokenType type, double value) {
+        this.type = type;
+        this.val = value;
+    }
+
+    public Token(TokenType type) {
+        this.type = type;
+        this.val = Double.NaN;
+    }
+
+    public void setType(TokenType type) {
         this.type = type;
     }
+
     public void setValue(String value) {
         // Set the value based on its type
         switch (type) {
@@ -35,7 +34,7 @@ public class Token {
                 if (value.length() == 1) {
                     this.value = value;
                 } else {
-                    throw new IllegalArgumentException("Invalid CHAR token value: " + value);
+                    throw new IllegalArgumentException("(Character value is invalid = " + value + ")");
                 }
                 break;
             case FLOAT:
@@ -43,17 +42,17 @@ public class Token {
                     Float.parseFloat(value);
                     this.value = value;
                 } catch (NumberFormatException e) {
-                    throw new NumberFormatException("Invalid FLOAT token value: " + value);
+                    throw new NumberFormatException("(Float value is invalid = " + value + ")");
                 }
                 break;
             case BOOL:
                 if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) {
                     this.value = value;
                 } else {
-                    throw new IllegalArgumentException("Invalid BOOL token value: " + value);
+                    throw new IllegalArgumentException("(Boolean value is invalid = " + value + ")");
                 }
                 break;
-            case NUMBER:
+            case INT:
                 try {
                     Integer.parseInt(value);
                     this.value = value;
@@ -62,30 +61,35 @@ public class Token {
                         Float.parseFloat(value);
                         this.value = value;
                     } catch (NumberFormatException ex) {
-                        throw new NumberFormatException("Invalid NUMBER token value: " + value);
+                        throw new NumberFormatException("(Integer value is invalid = " + value + ")");
                     }
                 }
                 break;
             default:
-                throw new UnsupportedOperationException("Data type not supported for token type: " + type);
+                throw new UnsupportedOperationException("(Data Type does not exist = " + value + ")");
         }
     }
 
 
-    public Type getType() {
+    public TokenType getType() {
         return type;
     }
 
     public String getValue() {
         return value;
     }
+
+    public double getVal(){
+        return val;
+    }
+    
     public Object getDataType() {
         switch (type) {
             case CHAR:
                 if (value.length() == 1) {
                     return value.charAt(0);
                 } else {
-                    throw new IllegalArgumentException("Invalid CHAR token value: " + value);
+                    throw new IllegalArgumentException("(Character value is invalid = " + value + ")");
                 }
             case FLOAT:
                 return Float.parseFloat(value);
@@ -95,19 +99,19 @@ public class Token {
                 } else {
                     return null;
                 }
-            case NUMBER:
+            case INT:
                 try {
                     return Integer.parseInt(value);
                 } catch (NumberFormatException e) {
-                    // If it's not an integer, try parsing as a float
-                    return Float.parseFloat(value);
+                    throw new NumberFormatException("(Integer value is invalid = " + value + ")");
                 }
             default:
                 throw new UnsupportedOperationException(toString());
         }
     }
+
     @Override
     public String toString() {
-        return "(" + type + ": " + value + ")";
+        return "(" + type + " = " + value + ")";
     }
 }

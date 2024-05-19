@@ -22,7 +22,7 @@ public static boolean getLogicalResult(String inputString) throws Exception {
  */
 private static double evaluateExpressionTree(ArithTokenNode node) {
     switch (node.type) {
-        case NUMBER: {
+        case INT: {
             return node.isNegative() ? -node.nodeValue : node.nodeValue;
         }
         case MULTIPLY: {

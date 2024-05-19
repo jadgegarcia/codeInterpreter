@@ -4,18 +4,19 @@ import java.util.List;
 import java.util.Stack;
 
 import lexer.Token;
+import lexer.TokenType;
 
 public class Calculator {
 
     private static final String ARITHMETIC_OPERATORS = "+-*/%";
     private static final String LOGICAL_OPERATORS = "&|!";
-    public static float evaluateArithmeticExpression(List<Token> expression, Token.Type floatType) {
+    public static float evaluateArithmeticExpression(List<Token> expression, TokenType floatType) {
         LinkedList<Token> postfix = infixToPostfix(expression, ARITHMETIC_OPERATORS);
         Stack<Float> stack = new Stack<>();
 
         for (Token token : postfix) {
-            if (token.getType() == Token.Type.FLOAT || token.getType() == Token.Type.NUMBER) {
-                if (token.getType() == Token.Type.NUMBER) {
+            if (token.getType() == TokenType.FLOAT || token.getType() == TokenType.INT) {
+                if (token.getType() == TokenType.INT) {
                     stack.push(Float.parseFloat(token.getValue())); // Convert NUMBER to FLOAT
                 } else {
                     stack.push(Float.parseFloat(token.getValue()));
@@ -50,7 +51,7 @@ public class Calculator {
         Stack<Integer> stack = new Stack<>();
 
         for (Token token : postfix) {
-            if (token.getType() == Token.Type.NUMBER) {
+            if (token.getType() == TokenType.INT) {
                 stack.push(Integer.parseInt(token.getValue()));
             } else if (ARITHMETIC_OPERATORS.contains(token.getValue())) {
                 int operand2 = stack.pop();
@@ -83,11 +84,11 @@ public class Calculator {
         Stack<Object> stack = new Stack<>();
 
         for (Token token : postfix) {
-            if (token.getType() == Token.Type.BOOL) {
+            if (token.getType() == TokenType.BOOL) {
                 stack.push(Boolean.parseBoolean(token.getValue()));
-            } else if (token.getType() == Token.Type.NUMBER) {
+            } else if (token.getType() == TokenType.INT) {
                 stack.push(Integer.parseInt(token.getValue()));
-            } else if (token.getType() == Token.Type.FLOAT) {
+            } else if (token.getType() == TokenType.FLOAT) {
                 stack.push(Float.parseFloat(token.getValue()));
             } else if (ARITHMETIC_OPERATORS.contains(token.getValue())) {
                 // Evaluate arithmetic sub-expression
@@ -130,14 +131,14 @@ public class Calculator {
         Stack<Token> operatorStack = new Stack<>();
 
         for (Token token : expression) {
-            if (token.getType() == Token.Type.NUMBER || token.getType() == Token.Type.BOOL || token.getType() == Token.Type.FLOAT) {
+            if (token.getType() == TokenType.INT || token.getType() == TokenType.BOOL || token.getType() == TokenType.FLOAT) {
                 postfix.add(token);
             } else if (operators.contains(token.getValue())) {
                 while (!operatorStack.isEmpty() && precedence(operatorStack.peek().getValue()) >= precedence(token.getValue())) {
                     postfix.add(operatorStack.pop());
                 }
                 operatorStack.push(token);
-            } else if (token.getType() == Token.Type.DELIMITER) {
+            } else if (token.getType() == TokenType.DELIMITER) {
                 if (token.getValue().equals("(")) {
                     operatorStack.push(token);
                 } else if (token.getValue().equals(")")) {

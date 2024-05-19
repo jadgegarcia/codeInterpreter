@@ -1,7 +1,10 @@
 package Arithmetic;
 
+import lexer.Token;
+import lexer.TokenType;
+
 public class ArithTokenNode {
-    public final MathsToken.MatTokenType type;
+    public final TokenType type;
     public final ArithTokenNode operand1, operand2;
     public double nodeValue;
     private boolean negative = false; //keeps track of whether a - has been added to negate the value held in this node
@@ -9,16 +12,16 @@ public class ArithTokenNode {
     /**
      * Creates a Number TokenNode with the value in {@link Token}.
      */
-    ArithTokenNode(MathsToken token) {
-        this.type = MathsToken.MatTokenType.NUMBER;
-        this.nodeValue = token.val;
+    ArithTokenNode(Token token) {
+        this.type = TokenType.INT;
+        this.nodeValue = token.getVal();
         operand1 = operand2 = null;
     }
  
     /**
      * Create a new TokenNode for arithmetic operators.
      */
-    ArithTokenNode(MathsToken.MatTokenType type, ArithTokenNode operand1, ArithTokenNode operand2) {
+    ArithTokenNode(TokenType type, ArithTokenNode operand1, ArithTokenNode operand2) {
         this.type = type;
         this.operand1 = operand1;
         this.operand2 = operand2;
@@ -42,7 +45,7 @@ public class ArithTokenNode {
     @Override
     public String toString() {
         StringBuilder res = new StringBuilder();
-        if (this.type == MathsToken.MatTokenType.NUMBER) {
+        if (this.type == TokenType.INT) {
             res.append(this.nodeValue);
         } else {
             String format = "%s %c % s";

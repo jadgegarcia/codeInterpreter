@@ -14,7 +14,7 @@ public class Lexer {
     // Function to get the next token
     public Token getNextToken() {
         if (position >= input.length()) {
-            return new Token(Token.Type.EOF, "");
+            return new Token(TokenType.EOF, "");
         }
 
         char currentChar = input.charAt(position);
@@ -37,13 +37,13 @@ public class Lexer {
                 String numberLiteral = numberBuilder.toString();
                 if (numberLiteral.equals("-") || numberLiteral.equals("+")) {
                     // Only the unary operator without the numeric literal
-                    return new Token(Token.Type.OPERATOR, numberLiteral);
+                    return new Token(TokenType.OPERATOR, numberLiteral);
                 } else if (numberLiteral.contains(".")) {
                     // It's a float
-                    return new Token(Token.Type.FLOAT, numberLiteral);
+                    return new Token(TokenType.FLOAT, numberLiteral);
                 } else {
                     // It's an integer
-                    return new Token(Token.Type.NUMBER, numberLiteral);
+                    return new Token(TokenType.INT, numberLiteral);
                 }
             }
         }
@@ -57,15 +57,15 @@ public class Lexer {
                     currentChar = input.charAt(position);
             }
             String identifier = identifierBuilder.toString();
-            if(isBooleanLiteral(identifier)) return new Token(Token.Type.BOOL, identifier.toLowerCase());
+            //if(isBooleanLiteral(identifier)) return new Token(TokenType.BOOL, identifier);
             // Check if it's a keyword or special token
             if (isKeywordOrSpecialToken(identifier)) {
-                return new Token(Token.Type.KEYWORD, identifier.toLowerCase());
+                return new Token(TokenType.KEYWORD, identifier);
             } else {
                 if (isValidIdentifier(identifier)) {
-                    return new Token(Token.Type.IDENTIFIER, identifier);
+                    return new Token(TokenType.IDENTIFIER, identifier);
                 } else {
-                    return new Token(Token.Type.INVALID, "Invalid identifier: " + identifier);
+                    return new Token(TokenType.INVALID, "(The set identifier is invalid = " + identifier + ")");
                 }
             }
         }
@@ -78,7 +78,7 @@ public class Lexer {
                 if (currentChar == '.') {
                     if (isFloat) {
                         // Second dot found, invalid token
-                        return new Token(Token.Type.INVALID, "Invalid token: " + numberBuilder.toString());
+                        return new Token(TokenType.INVALID, "(Token is invalid = " + numberBuilder.toString() + ")");
                     }
                     isFloat = true;
                 }
@@ -90,16 +90,16 @@ public class Lexer {
 
             // If it's a float, return as FLOAT type, else return as NUMBER type
             if (isFloat) {
-                return new Token(Token.Type.FLOAT, numberBuilder.toString());
+                return new Token(TokenType.FLOAT, numberBuilder.toString());
             } else {
-                return new Token(Token.Type.NUMBER, numberBuilder.toString());
+                return new Token(TokenType.INT, numberBuilder.toString());
             }
         }
 
         // Handle delimiters
         if (isDelimiter(currentChar)) {
             position++;
-            return new Token(Token.Type.DELIMITER, String.valueOf(currentChar));
+            return new Token(TokenType.DELIMITER, String.valueOf(currentChar));
         }
         // Handle assignment or comparison operator
         if (currentChar == '=') {
@@ -107,10 +107,10 @@ public class Lexer {
             if (position < input.length() && input.charAt(position) == '=') {
                 // Handle ==
                 position++;
-                return new Token(Token.Type.OPERATOR, "==");
+                return new Token(TokenType.OPERATOR, "==");
             } else {
                 // Handle =
-                return new Token(Token.Type.ASSIGNMENT, "=");
+                return new Token(TokenType.ASSIGNMENT, "=");
             }
         }
         // Handle comparison operators
@@ -119,31 +119,31 @@ public class Lexer {
             if (position < input.length() && input.charAt(position) == '=') {
                 // Handle >= and <=
                 position++;
-                return new Token(Token.Type.OPERATOR, String.valueOf(currentChar) + "=");
+                return new Token(TokenType.OPERATOR, String.valueOf(currentChar) + "=");
             } else if (position < input.length() && input.charAt(position) == '>') {
                 // Handle <>
                 position++;
-                return new Token(Token.Type.OPERATOR, "<>");
+                return new Token(TokenType.OPERATOR, "<>");
             } else {
-                return new Token(Token.Type.OPERATOR, String.valueOf(currentChar));
+                return new Token(TokenType.OPERATOR, String.valueOf(currentChar));
             }
         }
         // Handle unary operators
         if (currentChar == '+' || currentChar == '-' || currentChar == '*' || currentChar == '/' ||currentChar == '%') {
             position++;
-            return new Token(Token.Type.OPERATOR, String.valueOf(currentChar));
+            return new Token(TokenType.OPERATOR, String.valueOf(currentChar));
         }
         // Handle Single Quote
         if (input.charAt(position) == '\'') {
             if (position + 2 < input.length() && input.charAt(position + 2) == '\'') {
                 char charLiteral = input.charAt(position + 1);
                 position += 3;  // Move to the character after the closing single quote
-                return new Token(Token.Type.CHAR, String.valueOf(charLiteral));
+                return new Token(TokenType.CHAR, String.valueOf(charLiteral));
             } else {
                 // Invalid character literal (not properly enclosed)
                 position++;
-                System.err.println("Character literal is not properly enclosed or is not a character");
-                return new Token(Token.Type.INVALID, "Character literal is not properly enclosed or is not a character");
+                System.err.println("(A character is not properly enclosed or is invalid)");
+                return new Token(TokenType.INVALID, "(A character is not properly enclosed or is invalid)");
             }
         }
 
@@ -169,7 +169,7 @@ public class Lexer {
                         position++;
                     } else {
                         // Unterminated bracket content
-                        return new Token(Token.Type.INVALID, "Unterminated bracket content");
+                        return new Token(TokenType.INVALID, "(Bracket content is not properly enclosed)");
                     }
                 } else {
                     // Handle escape sequences if needed
@@ -201,22 +201,26 @@ public class Lexer {
             // Check if closing double quote was found
             if (position < input.length() && input.charAt(position) == '"') {
                 position++;
-                if(isBooleanLiteral(stringLiteralBuilder.toString())) return new Token(Token.Type.BOOL, stringLiteralBuilder.toString());
-                return new Token(Token.Type.STRING, stringLiteralBuilder.toString());
+                String stringLiteral = stringLiteralBuilder.toString();
+                if (isBooleanLiteral(stringLiteral)) {
+                    
+                    return new Token(TokenType.BOOL, stringLiteral);
+                }
+                return new Token(TokenType.STRING, stringLiteral);
             } else {
                 // No closing double quote found
-                return new Token(Token.Type.INVALID, "Unterminated string literal");
+                return new Token(TokenType.INVALID, "(String is not properly enclosed)");
             }
         }
         // Handle concat
         if (currentChar == '&') {
             position++;
-            return new Token(Token.Type.CONCAT, String.valueOf(currentChar));
+            return new Token(TokenType.CONCAT, String.valueOf(currentChar));
         }
         // Handle new line
         if (currentChar == '$') {
             position++;
-            return new Token(Token.Type.STRING, String.valueOf(currentChar));
+            return new Token(TokenType.STRING, String.valueOf(currentChar));
         }
         // Skip whitespaces
         if (Character.isWhitespace(currentChar)) {
@@ -234,10 +238,10 @@ public class Lexer {
             if (position < input.length() && input.charAt(position) == ']') {
                 // Move past the closing bracket
                 position++;
-                return new Token(Token.Type.STRING, stringLiteralBuilder.toString());
+                return new Token(TokenType.STRING, stringLiteralBuilder.toString());
             } else {
                 // Unterminated string literal (no closing bracket)
-                return new Token(Token.Type.INVALID, "Unterminated string literal");
+                return new Token(TokenType.INVALID, "(String is not properly enclosed)");
             }
         }
         // Handle comments
@@ -260,24 +264,24 @@ public class Lexer {
         // Handle newline characters
         if (currentChar == '@' ){
             position++;
-            return new Token(Token.Type.NEWLINE, String.valueOf(currentChar));
+            return new Token(TokenType.NEWLINE, String.valueOf(currentChar));
         }
         // If none of the above, it's an invalid token
         position++;
-        return new Token(Token.Type.EOF, String.valueOf(currentChar));
+        return new Token(TokenType.EOF, String.valueOf(currentChar));
     }
 
     // Function to check if a string is a keyword or special token
     private boolean isKeywordOrSpecialToken(String identifier) {
         // For simplicity, let's assume some keywords and special tokens
-        List<String> keywordsAndSpecialTokens = List.of("if", "else", "while", "for","char","int", "float", "double","bool", "return", "begin", "end","code","scan","display","and","or","not");
-        return keywordsAndSpecialTokens.contains(identifier.toLowerCase());
+        List<String> keywordsAndSpecialTokens = List.of("IF", "ELSE", "WHILE", "FOR","CHAR","INT", "FLOAT","BOOL", "RETURN", "BEGIN", "END","CODE","SCAN","DISPLAY","AND","OR","NOT");
+        return keywordsAndSpecialTokens.contains(identifier);
     }
     // Function to check if a string is a Boolean Literal
     private boolean isBooleanLiteral(String identifier) {
         // For simplicity, let's assume some keywords and special tokens
-        List<String> keywordsAndSpecialTokens = List.of("true","false");
-        return keywordsAndSpecialTokens.contains(identifier.toLowerCase());
+        List<String> keywordsAndSpecialTokens = List.of("TRUE","FALSE");
+        return keywordsAndSpecialTokens.contains(identifier);
     }
 
     // Function to check if a character is a delimiter

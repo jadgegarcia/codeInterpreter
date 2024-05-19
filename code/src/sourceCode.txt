@@ -1,11 +1,8 @@
 BEGIN CODE
 
-	INT x, z 
+	INT x = 2 - 1
 
-	BOOL int = "TRUE"
 
-	x=z=6
-
-	# this is a comment
+	DISPLAY: x
 
 END CODE

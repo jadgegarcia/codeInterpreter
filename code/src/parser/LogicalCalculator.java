@@ -2,6 +2,7 @@ package parser;
 import java.util.*;
 
 import lexer.Token;
+import lexer.TokenType;
 
 public class LogicalCalculator {
     private Stack<Token> operandStack;
@@ -17,20 +18,20 @@ public class LogicalCalculator {
             // Visualize token being processed
 //            System.out.println("Processing token: " + token);
 
-            if (token.getType() == Token.Type.BOOL || token.getType() == Token.Type.NUMBER || token.getType() == Token.Type.FLOAT) {
+            if (token.getType() == TokenType.BOOL || token.getType() == TokenType.INT || token.getType() == TokenType.FLOAT) {
                 operandStack.push(token);
-            } else if (token.getType() == Token.Type.OPERATOR || token.getType() == Token.Type.KEYWORD) {
+            } else if (token.getType() == TokenType.OPERATOR || token.getType() == TokenType.KEYWORD) {
                 while (!operatorStack.isEmpty() && hasPrecedence(operatorStack.peek(), token)) {
                     performOperation();
                 }
                 operatorStack.push(token);
-            } else if (token.getType() == Token.Type.DELIMITER && token.getValue().equals("(")) {
+            } else if (token.getType() == TokenType.DELIMITER && token.getValue().equals("(")) {
                 operatorStack.push(token);
-            } else if (token.getType() == Token.Type.DELIMITER && token.getValue().equals(")")) {
-                while (!operatorStack.isEmpty() && operatorStack.peek().getType() != Token.Type.DELIMITER) {
+            } else if (token.getType() == TokenType.DELIMITER && token.getValue().equals(")")) {
+                while (!operatorStack.isEmpty() && operatorStack.peek().getType() != TokenType.DELIMITER) {
                     performOperation();
                 }
-                if (!operatorStack.isEmpty() && operatorStack.peek().getType() == Token.Type.DELIMITER) {
+                if (!operatorStack.isEmpty() && operatorStack.peek().getType() == TokenType.DELIMITER) {
                     operatorStack.pop(); // Remove the "("
                 } else {
                     throw new IllegalArgumentException("Mismatched parentheses");
@@ -56,12 +57,12 @@ public class LogicalCalculator {
     }
 
     private boolean hasPrecedence(Token op1, Token op2) {
-        if ((op2.getType() == Token.Type.KEYWORD && op2.getValue().equalsIgnoreCase("NOT")) ||
-                (op1.getType() == Token.Type.KEYWORD && (op1.getValue().equalsIgnoreCase("AND") || op1.getValue().equalsIgnoreCase("OR")))) {
+        if ((op2.getType() == TokenType.KEYWORD && op2.getValue().equalsIgnoreCase("NOT")) ||
+                (op1.getType() == TokenType.KEYWORD && (op1.getValue().equalsIgnoreCase("AND") || op1.getValue().equalsIgnoreCase("OR")))) {
             return false;
         }
-        if ((op1.getType() == Token.Type.KEYWORD && op1.getValue().equalsIgnoreCase("NOT")) ||
-                (op1.getType() == Token.Type.OPERATOR && (op1.getValue().equalsIgnoreCase("AND") || op1.getValue().equalsIgnoreCase("OR")))) {
+        if ((op1.getType() == TokenType.KEYWORD && op1.getValue().equalsIgnoreCase("NOT")) ||
+                (op1.getType() == TokenType.OPERATOR && (op1.getValue().equalsIgnoreCase("AND") || op1.getValue().equalsIgnoreCase("OR")))) {
             return true;
         }
         return false;
@@ -71,10 +72,10 @@ public class LogicalCalculator {
         Token operator = operatorStack.pop();
 //        System.out.println("Operator: " + operator);
 
-        if (operator.getType() == Token.Type.KEYWORD && operator.getValue().equalsIgnoreCase("NOT")) {
+        if (operator.getType() == TokenType.KEYWORD && operator.getValue().equals("NOT")) {
             Token operand = operandStack.pop();
             boolean operandValue = Boolean.parseBoolean(operand.getValue());
-            operandStack.push(new Token(Token.Type.BOOL, String.valueOf(!operandValue)));
+            operandStack.push(new Token(TokenType.BOOL, String.valueOf(!operandValue)));
 //            System.out.println("NOT operand: " + operand.getValue());
         } else {
             Token operand2 = operandStack.pop();
@@ -82,16 +83,16 @@ public class LogicalCalculator {
             boolean result = false;
 
             // Evaluate expression based on operand types
-            if (operand1.getType() == Token.Type.BOOL || operand2.getType() == Token.Type.BOOL) {
+            if (operand1.getType() == TokenType.BOOL || operand2.getType() == TokenType.BOOL) {
                 boolean operand1Value = Boolean.parseBoolean(operand1.getValue());
                 boolean operand2Value = Boolean.parseBoolean(operand2.getValue());
 
                 // Apply logical operator
                 switch (operator.getValue()) {
-                    case "and":
+                    case "AND":
                         result = operand1Value && operand2Value;
                         break;
-                    case "or":
+                    case "OR":
                         result = operand1Value || operand2Value;
                         break;
                     case "<>":
@@ -128,7 +129,7 @@ public class LogicalCalculator {
             }
 
             // Push result onto operand stack
-            operandStack.push(new Token(Token.Type.BOOL, String.valueOf(result)));
+            operandStack.push(new Token(TokenType.BOOL, String.valueOf(result)));
 //            System.out.println("Result pushed onto operand stack: " + result);
         }
 

@@ -4,8 +4,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import lexer.Lexer;
+import lexer.Lexer1;
 import lexer.Token;
+import lexer.TokenType;
 import parser.SyntaxAnalyzer;
 
 public class Main {
@@ -15,8 +16,8 @@ public class Main {
     // Main method
     public static void main(String[] args) {
         // Define the filename containing the CODE program
-        String filename = "D:\\CODE\\FINAL\\code\\InterpreterNew-master\\src\\sourceCode.txt";
-
+        String filename = "D:\\CODE\\FINAL\\code\\code\\code\\src\\sourceCode.txt";
+        
         try {
             // Create a FileReader to read the file
             FileReader fileReader = new FileReader(filename);
@@ -34,7 +35,8 @@ public class Main {
             bufferedReader.close();
             // Create a Lexer instance
             //System.out.println(codeBuilder.toString());
-            Lexer lexer = new Lexer(codeBuilder.toString());
+            Lexer1 lexer = new Lexer1(codeBuilder.toString());
+            //System.out.println(codeBuilder.toString());
             List<Token> tokens = new ArrayList<>();
 //            System.out.println("Tokens:-----------------");
             Token token;
@@ -43,60 +45,19 @@ public class Main {
             do {
                 token = lexer.getNextToken();
                 tokens.add(token);
-                //System.out.println(token + " Index: " + index);
-            } while (token.getType() != Token.Type.EOF);
+                System.out.println(token);
+            } while (token.getType() != TokenType.EOF);
 
 
             SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(tokens);
             syntaxAnalyzer.parse();
-
-//            Lexer lexer1 = new Lexer(codeBuilder.toString());
-////             Create a SyntaxAnalyzer instance
-//            SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(lexer1);
-////             Parse the source code
-//            System.out.println("Parsing the source code...");
-//
-//            System.out.println(syntaxAnalyzer.lexer.input);
-//            syntaxAnalyzer.parse();
 
         } catch (FileNotFoundException e) {
             System.err.println("File not found: " + filename);
         } catch (IOException e) {
             System.err.println("Error reading file: " + e.getMessage());
         }
-
-        //System.out.println("\nSimple Arithmetic Interpreter. Enter an arithmetic expression[e.g.\"(2+3)*5\"] to evaluate the result.");
-        //System.out.println("type END to quit program.\n");
-
-        // run();
-
+        
     }
-
-
-
-    /**
-     * Runs the interpreter and prints result to console
-     */
-    // public static void run() {
-    //     boolean flag = true;
-    //     while (flag) {
-    //         System.out.print("> ");
-    //         String input = scanner.nextLine();
-
-    //         if (input.equals("END")) {
-    //             flag = false;
-    //         }
-    //         else if (input.equals("")) System.out.println(0);
-    //         else {
-    //             try {
-    //                 System.out.println(ArithInterpreter.getResult(input));
-
-    //                 //System.out.println(ArithInterpreter.getLogicalResult(input));
-    //             } catch (Exception ignored) {
-    //                 System.out.println("Invalid Input");
-    //             }
-    //         }
-    //     }
-    // }
 
 }
